@@ -7,24 +7,24 @@ extends Node
 # Config #
 ##########
 
-const DEFAULT_BINDIGS : bool = true
+var DEFAULT_BINDIGS : bool = true
 
-const DEBUG : bool = false 
+var DEBUG : bool = false
 
-const DRAG_STARTUP_TIME : float = 0.02
+var DRAG_STARTUP_TIME : float = 0.02
 
-const FINGER_SIZE : float = 100.0
+var FINGER_SIZE : float = 100.0
 
-const MULTI_FINGER_RELEASE_THRESHOLD : float = 0.1
+var MULTI_FINGER_RELEASE_THRESHOLD : float = 0.1
 
-const TAP_TIME_LIMIT     : float = 0.2
-const TAP_DISTANCE_LIMIT : float = 25.0
+var TAP_TIME_LIMIT     : float = 0.2
+var TAP_DISTANCE_LIMIT : float = 25.0
 
-const LONG_PRESS_TIME_THRESHOLD : float = 0.75
-const LONG_PRESS_DISTANCE_LIMIT : float = 25.0
+var LONG_PRESS_TIME_THRESHOLD : float = 0.75
+var LONG_PRESS_DISTANCE_LIMIT : float = 25.0
 
-const SWIPE_TIME_LIMIT         : float = 0.5
-const SWIPE_DISTANCE_THRESHOLD : float = 200.0
+var SWIPE_TIME_LIMIT         : float = 0.5
+var SWIPE_DISTANCE_THRESHOLD : float = 200.0
 
 #########
 # CONST #
@@ -49,7 +49,7 @@ const	swipe2dir : Dictionary = \
 # Signals #
 ###########
 
-signal touch 
+signal touch
 signal drag
 signal single_tap
 signal single_touch
@@ -85,7 +85,7 @@ var _drag_startup_timer : Timer = Timer.new()
 var _long_press_timer   : Timer = Timer.new()
 
 var _single_touch_cancelled : bool = false
-var _single_drag_enabled    : bool = false 
+var _single_drag_enabled    : bool = false
 
 #############
 # Functions #
@@ -132,7 +132,7 @@ func _unhandled_input(event : InputEvent) -> void:
 		_handle_mouse_motion(event)
 	else:
 		_handle_action(event)
-		
+
 func _handle_mouse_motion(event : InputEventMouseMotion) -> void:
 	if _mouse_event == Gesture.SINGLE_DRAG:
 	  _emit("drag", _native_drag_event(0, event.position, event.relative, event.speed))
@@ -172,7 +172,7 @@ func _handle_screen_touch(event : InputEventScreenTouch) -> void:
 				_cancel_single_drag()
 				_emit("single_touch", InputEventSingleScreenTouch.new(raw_gesture))
 	else:
-		var fingers : int = raw_gesture.size() 
+		var fingers : int = raw_gesture.size()
 		if index == 0:
 			_emit("single_touch", InputEventSingleScreenTouch.new(raw_gesture))
 			if !_single_touch_cancelled:
@@ -235,7 +235,7 @@ func _handle_action(event : InputEvent) -> void:
 			_mouse_event = Gesture.NONE
 	elif (InputMap.has_action("pinch_outward") and event.is_action_pressed("pinch_outward")) or (InputMap.has_action("pinch_inward") and event.is_action_pressed("pinch_inward")):
 		var pinch_event = InputEventScreenPinch.new()
-		pinch_event.fingers = 2 
+		pinch_event.fingers = 2
 		pinch_event.position = get_viewport().get_mouse_position()
 		pinch_event.distance = 400
 		pinch_event.relative = 40
@@ -244,7 +244,7 @@ func _handle_action(event : InputEvent) -> void:
 		_emit("pinch", pinch_event)
 	else:
 		var swipe_emulation_dir  : Vector2 = Vector2.ZERO
-		var is_single_swipe : bool 
+		var is_single_swipe : bool
 		for swipe in swipe2dir:
 			var dir = swipe2dir[swipe]
 			if InputMap.has_action("single_"+swipe) and event.is_action_pressed("single_"+swipe):
@@ -290,14 +290,14 @@ func _released_together(_raw_gesture : RawGesture, threshold : float) -> bool:
 # Checks if the gesture is pinch
 func _identify_gesture(_raw_gesture : RawGesture) -> int:
 	var center : Vector2 = _raw_gesture.centroid("drags","position")
-	
+
 	var sector : int = -1
 	for e in _raw_gesture.drags.values():
 		var adjusted_position : Vector2 = center - e.position
-		var raw_angle      : float = fmod(adjusted_position.angle_to(e.relative) + (PI/4), TAU) 
+		var raw_angle      : float = fmod(adjusted_position.angle_to(e.relative) + (PI/4), TAU)
 		var adjusted_angle : float = raw_angle if raw_angle >= 0 else raw_angle + TAU
 		var e_sector       : int = int(floor(adjusted_angle / (PI/2)))
-		if sector == -1: 
+		if sector == -1:
 			sector = e_sector
 		elif sector != e_sector:
 			return Gesture.MULTI_DRAG
@@ -321,7 +321,7 @@ func _on_long_press_timer_timeout() -> void:
 			_emit("multi_long_press", InputEventMultiScreenLongPress.new(raw_gesture))
 		else:
 			_emit("single_long_press", InputEventSingleScreenLongPress.new(raw_gesture))
-	
+
 
 func _end_gesture() -> void:
 	_single_drag_enabled = false
@@ -341,7 +341,7 @@ func _native_drag_event(index : int, position : Vector2, relative : Vector2, spe
 	var native_drag : InputEventScreenDrag = InputEventScreenDrag.new()
 	native_drag.index = index
 	native_drag.position = position
-	native_drag.relative  = relative 
+	native_drag.relative  = relative
 	native_drag.speed    = speed
 	return native_drag
 
